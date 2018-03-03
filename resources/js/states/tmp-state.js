@@ -7,9 +7,11 @@ var TMP_STATE = (function()
 		_pointerPosition.y = y;
 	};
 	
-	var playerPointer = null;
 	
 	var STATE = function(){};
+	//
+	var playerPointer = null;
+	//
 	STATE.prototype =
 	{
 		preload: function()

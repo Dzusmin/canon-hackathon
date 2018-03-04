@@ -1,18 +1,107 @@
-<!doctype html> 
-<html> 
-	<head> 
+<!doctype html>
+<html>
+	<head>
 		<meta charset="utf-8" />
 		<link rel="stylesheet" type="text/css" href="resources/css/default.css" />
 		<script type="text/javascript" src="resources/libs/phaser.io/phaser.min.js"></script>
 		<script type="text/javascript" src="resources/libs/box2d/box2d-plugin-full.js"></script>
 		<script type="text/javascript" src="resources/js/core.js"></script>
+		<script type="text/javascript" src="resources/js/tracking-min.js"></script>
 		<script type="text/javascript" src="resources/js/states/magenta-state.js"></script>
 		<script type="text/javascript" src="resources/js/states/tmp-state.js"></script>
 	</head>
 	<body>
+        <div id="rectangle" class="rectangle" onclick="removeStartScreen('rectangle')"></div>
 		<div id="gameDiv"></div>
-		<script type="text/javascript">
-			GAME.state.start('MAGENTA_STATE');
-		</script>
+		<video id="video" class="source" width="640" height="480" preload autoplay loop muted controls></video>
+		<canvas id="canvas" class="source" width="640" height="480"></canvas>
 	</body>
+
+	<script type="text/javascript">
+	  var gameAreaOutline = 'null';
+	  var playerColor = 'green';
+	  var scaleX = 0;
+	  var scaleY = 0;
+
+	  window.onload = function() {
+
+		var players = [];
+
+		var video = document.getElementById('video');
+		var canvas = document.getElementById('canvas');
+		var context = canvas.getContext('2d');
+		tracking.ColorTracker.registerColor('green', function(r, g, b) {
+		  return r < 50 && g > 20 && g < 90  && b < 100 && b > 40;
+		});
+        tracking.ColorTracker.registerColor('pink', function(r, g, b) {
+          return r > 100 && g > 10 && g < 50 && b < 100 && b > 40;
+        });
+		var tracker = new tracking.ColorTracker(['magenta', 'green', 'pink']);
+
+		tracking.track('#video', tracker, {camera: true});
+		tracker.on('track', function(event) {
+		  context.clearRect(0, 0, canvas.width, canvas.height);
+		  event.data.forEach(function(rect) {
+			drawContext(rect, context);
+
+			if (rect.color === 'magenta') {
+              gameAreaOutline = rect;
+			  drawRect(context, 'blue', rect.x, rect.y, rect.width, rect.height);
+			}
+
+			if (rect.color === playerColor) {
+			  players.push(rect);
+			}
+
+			if (players.length > 0) {
+			  players.forEach(function(rect) {
+				drawPlayer1(rect, gameAreaOutline);
+			  });
+			}
+		  });
+		});
+	  };
+
+      function drawPlayer1(rect, gameArea) {
+        if (gameArea !==  'null') {
+
+          var playerX = (rect.x * scaleX) + ((rect.width * scaleX) / 2);
+          var playerY = (rect.y * scaleY) + ((rect.height * scaleY) / 2);
+
+          TMP_STATE.setPointerPosition(playerX, playerY);
+        }
+      }
+
+	  function drawContext(rect, context) {
+		drawRect(context, rect.color, rect.x, rect.y, rect.width, rect.height);
+		context.font = '11px Helvetica';
+		context.fillStyle = '#fff';
+		context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+		context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+	  }
+
+	  function drawRect(context, color, x, y, width, height) {
+		context.strokeStyle = color;
+		context.strokeRect(x, y, width, height);
+	  }
+
+      function removeStartScreen(id) {
+        if (gameAreaOutline.length === 0) {
+          alert('nie można jeszcze zamknąć tła. Nie znaleziono planszy');
+        }
+        else {
+          scaleX = 800 / gameAreaOutline.width;
+          scaleY = 450 / gameAreaOutline.height;
+
+          console.log(scaleX);
+          console.log(scaleY);
+
+          document.getElementById(id).remove();
+          document.getElementById('video').setAttribute('style', 'bottom: -480px');
+          document.getElementById('canvas').setAttribute('style', 'bottom: -480px');
+
+          GAME.state.start('TMP_STATE')
+        }
+	  }
+	</script>
 </html>

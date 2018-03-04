@@ -1,0 +1,14 @@
+.rectangle {
+    background-color: magenta;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+}
+
+.source {
+    bottom: 0px;
+    right: 250px;
+    position: fixed;
+}

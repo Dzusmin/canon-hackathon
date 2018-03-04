@@ -22,6 +22,10 @@ var TMP_STATE = (function()
 		
 		create: function()
 		{
+			GAME.input.onDown.add(function() {
+				console.log('test');
+				GAME.scale.startFullScreen(true);
+      });
 			GAME.stage.backgroundColor = '#FFFFFF';
 			GAME.renderer.renderSession.roundPixels = true;
 			GAME.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -32,7 +36,7 @@ var TMP_STATE = (function()
 			
 			playerPointer = new Phaser.Physics.Box2D.Body(GAME, null, _pointerPosition.x, _pointerPosition.y);
 			playerPointer.setCircle(20);
-			playerPointer.static = true;
+			playerPointer.kinematic = true;
 			
 			for (var i = 0; i < 5; i++)
 			{
